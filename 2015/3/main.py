@@ -7,20 +7,39 @@ logger = logging.getLogger()
 
 if __name__ == "__main__":
     with open("input.txt") as f:
-        dims = [list(map(int, line.strip().split("x"))) for line in f.readlines()]
+        file = f.read()
+
+    x, y = 0, 0
+
+    presents = dict()
+    presents[0] = {0: 1}
+
+    for char in file:
+        if char == "^":
+            y += 1
+        elif char == "v":
+            y -= 1
+        elif char == ">":
+            x += 1
+        elif char == "<":
+            x -= 1
+        else:
+            raise ValueError(f"Unknown character {char}")
+
+        if x not in presents:
+            presents[x] = {}  # Create a new dictionary for x if it doesn't exist
+
+        if y in presents[x]:
+            presents[x][y] += 1
+        else:
+            presents[x][y] = 1
 
     total = 0
-    for dim in dims:
-        l = dim[0]
-        w = dim[1]
-        h = dim[2]
-        total += 2*l*w + 2*w*h + 2*h*l + sorted(dim)[0] * sorted(dim)[1]
-
-    print(total)
+    for key, row in presents.items():
+        total += sum(row.values())
 
     total = 0
-    for dim in dims:
-        dim.sort()
-        total += 2 * dim[0] + 2*dim[1] + (dim[0] * dim[1] * dim[2])
+    for key, row in presents.items():
+        total += len(row.keys())
 
     print(total)

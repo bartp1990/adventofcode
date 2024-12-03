@@ -1,3 +1,3 @@
-# Advent of Code 2024
-Solution attempts for Advent of Code 2024
-https://adventofcode.com/2024
+# Advent of Code 
+Solution attempts for Advent of Code 
+https://adventofcode.com/

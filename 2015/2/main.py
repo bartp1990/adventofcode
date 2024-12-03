@@ -7,23 +7,25 @@ logger = logging.getLogger()
 
 if __name__ == "__main__":
     with open("input.txt") as f:
-        file = f.read()
+        dims = [list(map(int, line.strip().split("x"))) for line in f.readlines()]
 
-    char_map = {
-        "(": 1,
-        ")": -1,
-    }
+    total = 0
+    for dim in dims:
+        length = dim[0]
+        width = dim[1]
+        height = dim[2]
+        total += (
+            2 * length * width
+            + 2 * width * height
+            + 2 * height * length
+            + sorted(dim)[0] * sorted(dim)[1]
+        )
 
-    part1 = sum([char_map[c] for c in file])
+    print(total)
 
-    part2 = None
-    floor = 0
-    for i, c in enumerate(file):
-        floor += char_map[c]
-        if floor == -1:
-            part2 = i + 1
-            break
+    total = 0
+    for dim in dims:
+        dim.sort()
+        total += 2 * dim[0] + 2 * dim[1] + (dim[0] * dim[1] * dim[2])
 
-    logger.info("Advent of Code 2015 | Day 1")
-    logger.info(f"Answer part 1: {part1}")
-    logger.info(f"Answer part 2: {part2}")
+    print(total)
