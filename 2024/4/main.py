@@ -7,7 +7,13 @@ import numpy as np
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
-WORD_TO_FIND = "XMAS"
+WORD_TO_FIND_PART1 = "XMAS"
+
+SEARCH_TARGET_PART2 = [
+    ["M", ".", "M"],
+    [".", "A", "."],
+    ["S", ".", "S"],
+]
 
 
 def rotate_90_deg(matrix):
@@ -33,7 +39,12 @@ def get_diagonals(matrix):
     for offset in range(-rows + 1, cols):
         anti_diagonals.append(flipped_matrix.diagonal(offset=offset).tolist())
 
-    return main_diagonals, anti_diagonals
+    main_reversed, anti_reversed = (
+        [diag[::-1] for diag in main_diagonals],
+        [diag[::-1] for diag in anti_diagonals],
+    )
+
+    return main_diagonals, anti_diagonals, main_reversed, anti_reversed
 
 
 def count_word_in_lines(lines, word):
@@ -72,27 +83,20 @@ if __name__ == "__main__":
     with open("input.txt") as f:
         grid = [list(line.strip()) for line in f.readlines()]
 
-    diag1, diag2 = get_diagonals(grid)
-    diag3, diag4 = [diag[::-1] for diag in diag1], [diag[::-1] for diag in diag2]
-
     rotated_90_grids = [grid]
     for _ in range(3):
         rotated_90_grids.append(rotate_90_deg(rotated_90_grids[-1]))
 
-    all_grids = rotated_90_grids[:]
-    all_grids.extend([diag1, diag2, diag3, diag4])
+    all_grids = rotated_90_grids + list(get_diagonals(grid))
 
     part_1 = sum(
-        [count_word_in_lines(["".join(row) for row in grid], WORD_TO_FIND) for grid in all_grids]
+        [
+            count_word_in_lines(["".join(row) for row in grid], WORD_TO_FIND_PART1)
+            for grid in all_grids
+        ]
     )
 
-    SEARCH_TARGET = [
-        ["M", ".", "M"],
-        [".", "A", "."],
-        ["S", ".", "S"],
-    ]
-
-    search_targets = [SEARCH_TARGET]
+    search_targets = [SEARCH_TARGET_PART2]
     for _ in range(3):
         search_targets.append(rotate_90_deg(search_targets[-1]))
 
