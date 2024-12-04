@@ -19,8 +19,8 @@ if __name__ == "__main__":
 
     part1 = get_mul_product(file)
 
-    only_text_outside_dont_do = r"(?s)(?<=^|(?<=\bdo\(\)))((?:(?!don\'t\(\)).)*)"
-    valid_instructions = re.findall(only_text_outside_dont_do, file)
+    only_text_outside_dont_do = r"(?:^|do\(\))(.*?)(?=\bdon't\(\)|$)"
+    valid_instructions = re.findall(only_text_outside_dont_do, file, re.DOTALL | re.DEBUG)
     part2 = get_mul_product("".join(valid_instructions))
 
     logger.info("Advent of Code 2024 | Day 3")
