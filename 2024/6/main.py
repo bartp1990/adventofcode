@@ -38,7 +38,7 @@ class Grid:
         self.pos = None
         self.direction: Direction
         self.total_visited = 1
-        self.possible_obstacle = 0
+        self.possible_obstacles = []
 
         tmp_grid = []
         for i_row, line in enumerate(f.readlines()):
@@ -52,7 +52,38 @@ class Grid:
             tmp_grid.append(row)
             self.grid = np.array(tmp_grid)
 
+    def check_loop_if_turn(self, new_pos):
+        rows, cols = self.grid.shape
+        cells = []
+        direction = get_next_direction(self.direction)
+
+        if direction == Direction.UP:
+            # Collect cells upwards, till we go out of bounds
+            for r in range(self.pos[0] - 1, -1, -1):  # Move from start_row upwards (r-- till 0)
+                cells.append((r, self.pos[1]))
+        elif direction == Direction.DOWN:
+            # Collect cells downwards, till we go out of bounds
+            for r in range(self.pos[0] - 1, rows):  # Move from start_row downwards (r++ till rows)
+                cells.append((r, self.pos[1]))
+        elif direction == Direction.LEFT:
+            # Collect cells leftwards, till we go out of bounds
+            for c in range(self.pos[1] - 1, -1, -1):  # Move from start_col leftwards (c-- till 0)
+                cells.append((self.pos[0], c))
+        elif direction == Direction.RIGHT:
+            # Collect cells rightwards, till we go out of bounds
+            for c in range(self.pos[1] - 1, cols):  # Move from start_col rightwards (c++ till cols)
+                cells.append((self.pos[0], c))
+
+        for i, cell in enumerate(cells):
+            print(self.grid[*cell])
+            if self.grid[*cell] in [direction.value for direction in Direction] and self.grid[*cells[i+1]] == "#":
+                self.possible_obstacles.append(new_pos)
+            if self.grid[*cell] == "#":
+                break
+
     def move(self):
+
+        self.grid[*self.pos] = self.direction.value
 
         def get_new_pos(direction, pos):
 
@@ -73,16 +104,17 @@ class Grid:
 
         rows, cols = self.grid.shape
         if not 0 <= new_pos[0] < rows and 0 <= new_pos[1] < cols:
-            print(f"Done! Visited: {self.total_visited}, possible blockages: {self.possible_obstacle}")
+            print(f"Done! Visited: {self.total_visited}, possible blockages: {len(set(self.possible_obstacles))}")
             exit(0)
 
         if new_pos and self.grid[*new_pos] != "#":
             if self.grid[*new_pos] not in [dir.value for dir in Direction]:
                 self.total_visited += 1
             else:
-                if get_next_direction(self.direction).value == self.grid[*new_pos]:
-                    self.possible_obstacle =+ 1
-            self.grid[*self.pos] = self.direction.value
+                bla = 1
+
+            self.check_loop_if_turn(new_pos=new_pos)
+
             self.pos = new_pos
         else:
             self.direction = get_next_direction(self.direction)
@@ -97,6 +129,3 @@ if __name__ == "__main__":
 
     while True:
         grid.move()
-        # print(grid.grid)
-        # sleep(0.5)
-        # os.system("clear")
