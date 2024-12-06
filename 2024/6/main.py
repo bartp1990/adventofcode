@@ -2,10 +2,12 @@
 
 import logging
 from enum import Enum
+
 import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
+
 
 class Direction(Enum):
     UP = "^"
@@ -14,31 +16,28 @@ class Direction(Enum):
     LEFT = "<"
 
 
+NEXT_DIR_MAP = {
+    Direction.UP: Direction.RIGHT,
+    Direction.RIGHT: Direction.DOWN,
+    Direction.DOWN: Direction.LEFT,
+    Direction.LEFT: Direction.UP,
+}
+
+
 char_to_direction = {member.value: member for member in Direction}
 
 
-def get_next_direction(dir: Direction) -> Direction:
-    next_dir_map = {
-        Direction.UP: Direction.RIGHT,
-        Direction.RIGHT: Direction.DOWN,
-        Direction.DOWN: Direction.LEFT,
-        Direction.LEFT: Direction.UP,
-    }
-
-    return next_dir_map[dir]
-
-
 class Grid:
-    def __init__(self, f):
+    def __init__(self, lines):
         self.grid = []
         self.positions_visited = set()
         self.pos = None
         self.direction: Direction
-        self.total_visited = 1
-        self.possible_obstacles = []
+        self.move_count = 0
+        self.done = False
 
         tmp_grid = []
-        for i_row, line in enumerate(f.readlines()):
+        for i_row, line in enumerate(lines):
             row = []
             for i_col, char in enumerate(list(line.strip())):
                 row.append(char)
@@ -51,11 +50,11 @@ class Grid:
             self.grid = np.array(tmp_grid)
 
     def move(self):
-
+        self.positions_visited.add(self.pos)
+        self.move_count += 1
         self.grid[*self.pos] = self.direction.value
 
         def get_new_pos(direction, pos):
-
             new_pos = None
 
             if direction is Direction.UP:
@@ -72,17 +71,15 @@ class Grid:
         new_pos = get_new_pos(self.direction, self.pos)
 
         rows, cols = self.grid.shape
-        if not 0 <= new_pos[0] < rows and 0 <= new_pos[1] < cols:
-            print(f"Done! Visited: {self.total_visited}, possible blockages: {len(set(self.possible_obstacles))}")
-            exit(0)
+        if not (0 <= new_pos[0] < rows and 0 <= new_pos[1] < cols):
+            self.done = True
+            return
 
         if new_pos and self.grid[*new_pos] != "#":
-            if self.grid[*new_pos] not in [dir.value for dir in Direction]:
-                self.total_visited += 1
-
             self.pos = new_pos
-        else:
-            self.direction = get_next_direction(self.direction)
+            return
+
+        self.direction = NEXT_DIR_MAP[self.direction]
 
     def __str__(self):
         return str(self.grid) + "\n"
@@ -90,9 +87,24 @@ class Grid:
 
 if __name__ == "__main__":
     with open("input.txt") as f:
-        grid = Grid(f)
+        lines = f.readlines()
 
-    while True:
+    grid = Grid(lines)
+
+    while not grid.done:
         grid.move()
 
+    print(f"Done! Visited: {len(grid.positions_visited)}")
+    loop_positions = set()
+    for i, position in enumerate(grid.positions_visited):
+        print(i, len(grid.positions_visited), len(loop_positions))
+        g = Grid(lines)
+        g.grid[*position] = "#"
 
+        while g.move_count < 100_000:
+            g.move()
+
+        if not g.done:
+            loop_positions.add(position)
+
+    print("Loops:", len(loop_positions))
