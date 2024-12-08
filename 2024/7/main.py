@@ -1,7 +1,7 @@
 """Solution for https://adventofcode.com/2024/day/7."""
 
-import logging
 import itertools
+import logging
 from functools import lru_cache
 
 logging.basicConfig(level=logging.INFO)
