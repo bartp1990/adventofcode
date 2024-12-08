@@ -10,6 +10,7 @@ logger = logging.getLogger()
 OPERATIONS_PART_1 = ("+", "*")
 OPERATIONS_PART_2 = ("+", "*", "||")
 
+
 def solve(calc, desired_answer):
     while len(calc) != 1:
         if calc[1] == "+":
@@ -27,9 +28,11 @@ def solve(calc, desired_answer):
 
     return calc[0] == desired_answer
 
+
 @lru_cache
 def get_permutations(operations, length):
     return list(itertools.product(operations, repeat=length - 1))
+
 
 def calculate(operations, problem_set) -> int:
     final_answer = 0
