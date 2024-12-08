@@ -1,63 +1,61 @@
-"""Solution for https://adventofcode.com/2024/day/7."""
+"""Solution for https://adventofcode.com/2024/day/8."""
 
 import logging
 import itertools
-from functools import lru_cache
+import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
-
-OPERATIONS_PART_1 = ("+", "*")
-OPERATIONS_PART_2 = ("+", "*", "||")
-
-def solve(calc, desired_answer):
-    while len(calc) != 1:
-        if calc[1] == "+":
-            sub_calc = calc[0] + calc[2]
-        elif calc[1] == "*":
-            sub_calc = calc[0] * calc[2]
-        elif calc[1] == "||":
-            sub_calc = int(f"{calc[0]}{calc[2]}")
-
-        if sub_calc > desired_answer:
-            return False
-
-        calc[0] = sub_calc
-        del calc[1:3]
-
-    return calc[0] == desired_answer
-
-@lru_cache
-def get_permutations(operations, length):
-    return list(itertools.product(operations, repeat=length - 1))
-
-def calculate(operations, problem_set) -> int:
-    final_answer = 0
-    for answer, numbers in problem_set.items():
-        permutations = get_permutations(operations, len(numbers))
-
-        for permutation in permutations:
-            expression = list(itertools.chain(*itertools.zip_longest(numbers, permutation)))
-            del expression[-1]
-            result = solve(expression, answer)
-
-            if result:
-                final_answer += answer
-                break
-
-    return final_answer
-
 
 if __name__ == "__main__":
     with open("input.txt") as f:
         lines = f.readlines()
 
-    split_lines = [line.split(":") for line in lines]
-    problems = {int(line[0]): list(map(int, line[1].split())) for line in split_lines}
+    pos_per_type = dict()
+    anti_nodes = set()
 
-    part_1 = calculate(OPERATIONS_PART_1, problems)
-    part_2 = calculate(OPERATIONS_PART_2, problems)
+    max_y = len(lines) - 1
+    max_x = len(list(lines[0].strip())) - 1
 
-    logger.info("Advent of Code 2024 | Day 7")
+    for y, line in enumerate(lines):
+        for x, char in enumerate(list(line.strip())):
+            if char != ".":
+                if not char in pos_per_type:
+                    pos_per_type[char] = set()
+
+                coord = (y, x)
+                pos_per_type[char].add(coord)
+
+    for _, coords in pos_per_type.items():
+        permutations = set(itertools.permutations(coords, 2))
+        for per in permutations:
+
+            for i in range(1, 2):
+                diff_y = per[0][0] - per[1][0] * i
+                diff_x = per[0][1] - per[1][1] * i
+
+                new_pos_y = per[1][0] - diff_y
+                new_pos_x = per[1][1] - diff_x
+
+                if max_y < new_pos_y or new_pos_y < 0 or max_x < new_pos_x or new_pos_x < 0:
+                    continue
+
+                new_pos = (new_pos_y, new_pos_x)
+
+                if new_pos not in anti_nodes:
+                    anti_nodes.add(new_pos)
+
+    # grid = np.full((max_y+1, max_x+1), ".")
+    # for t, coords in pos_per_type.items():
+    #     for coord in coords:
+    #         grid[*coord] = t
+    #
+    # for row in grid:
+    #     print(''.join(map(str, row)))
+
+    part_1 = len(anti_nodes)
+    part_2 = None
+
+    logger.info("Advent of Code 2024 | Day 8")
     logger.info(f"Answer part 1: {part_1}")
     logger.info(f"Answer part 2: {part_2}")
