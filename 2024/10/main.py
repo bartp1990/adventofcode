@@ -5,8 +5,9 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
-
 if __name__ == "__main__":
+    distinct = 0
+
     with open("input.txt") as f:
         lines = f.readlines()
 
@@ -45,20 +46,22 @@ if __name__ == "__main__":
         cur_pos = grid[coord[0]][coord[1]]
 
         if cur_pos == 9:
-            trail_peaks.add(coord)
+            trail_peaks.append(coord)
             return
 
         for neighbour in valid_neighbours(coord, cur_pos):
             search_part1(neighbour, peaks)
 
-    total = 0
+    total_part_1 = 0
+    total_part_2 = 0
     for head in trailheads:
-        peaks = set()
+        peaks = list()
         search_part1(head, peaks)
-        total += len(peaks)
+        total_part_1 += len(set(peaks))
+        total_part_2 += len(peaks)
 
-    part_1 = total
-    part_2 = None
+    part_1 = total_part_1
+    part_2 = total_part_2
 
     logger.info("Advent of Code 2024 | Day 10")
     logger.info(f"Answer part 1: {part_1}")
