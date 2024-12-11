@@ -5,42 +5,55 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
+import math
+
+blink_cache = dict()
+total = 0
+
+def split_number(n, num_digits):
+    n = abs(n)  # Ensure the number is positive
+    split_point = num_digits // 2
+    divisor = 10 ** split_point
+    first = n // divisor
+    second = n % divisor
+    return first, second
+
+def is_even_number_of_digits(n, num_digits):
+    if n == 0:
+        return True  # 0 has 1 digit, so it's odd, but we can treat it as even if preferred
+    return num_digits % 2 == 0
+
+def blink(n: int, cur_it, num_iterations):
+
+    if n in blink_cache:
+        return blink_cache[n]
+
+    num_digits = math.floor(math.log10(n)) + 1 if n > 0 else 0
+    if n == 0:
+        result = 1
+    elif is_even_number_of_digits(n, num_digits):
+        result = split_number(n, num_digits)
+    else:
+        result = n * 2024
+
+    if cur_it < num_iterations:
+        if isinstance(result, tuple):
+            for r in result:
+                blink(r, cur_it + 1, num_iterations)
+        else:
+            blink(result, cur_it + 1, num_iterations)
+
+    blink_cache[n] = result
+    return result
+
 if __name__ == "__main__":
     with open("input.txt") as f:
-        stones = list(map(str, f.read().split()))
+        stones = list(map(int, f.read().split()))
 
-    def blink(stones) -> list:
-        new_stones = []
-        for stone in stones:
-            stone_str = str(stone)
-            l_stone_str = len(stone_str)
-            if stone_str == "0":
-                new_stones.append("1")
-            elif l_stone_str % 2 == 0:
-                half_index = l_stone_str // 2
-                new_stones.append(int(stone_str[0:half_index]))
-                new_stones.append(int(stone_str[half_index:]))
-            else:
-                new_stones.append(str(int(stone) * 2024))
+    for i in range(6):
+        blink(1000, 0, 6)
 
-        return new_stones
-
-    # print("Initial arrangement:")
-    # print(" ".join(list(map(str,stones))))
-    # print("")
-
-    for i in range(25):
-        print(i)
-        # blink_word = "blinks"
-        # if i == 0:
-        #     blink_word = "blink"25
-
-        stones = blink(stones)
-        # print(f"After {i+1} {blink_word}:")
-        # print(" ".join(list(map(str,stones))))
-        # print("")
-
-    part_1 = len(stones)
+    part_1 = None
     part_2 = None
 
     logger.info("Advent of Code 2024 | Day 11")
