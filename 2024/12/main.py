@@ -9,12 +9,6 @@ from enum import Enum, auto
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
-class OutsideEdge(Enum):
-    NORTH = auto()
-    SOUTH = auto()
-    EAST = auto()
-    WEST = auto()
-
 @dataclass
 class Region:
     letter:str
@@ -25,8 +19,12 @@ class Region:
     max_x:int = 0
     min_y:int = 999999999999
     max_y:int = 0
-    outside_edges_touched: set[OutsideEdge] = field(default_factory=set)
+    outside_edges_touched:int = 0
     edges:int = 0
+
+    def get_subgrid_of_region(self, grid):
+        return grid[self.min_y:self.max_y + 1, self.min_x:self.max_x + 1]
+
 
 def print_grid(grid: np.ndarray):
     for row in grid:
@@ -49,8 +47,7 @@ if __name__ == "__main__":
     shape = grid.shape
 
     def find_edges(region):
-        return 0
-
+       pass
 
     def find_region(coord, char):
         region = Region(letter=char)
@@ -67,6 +64,12 @@ if __name__ == "__main__":
             if current_coord[0] not in region.rows:
                 region.rows[current_coord[0]] = []
             region.rows[current_coord[0]].append(current_coord[1])
+
+            if current_coord[0] in (0, shape[0]):
+                region.outside_edges_touched += 1
+            if current_coord[1] in (0, shape[1]):
+                region.outside_edges_touched += 1
+
             neighbours = [
                 (current_coord[0] - 1, current_coord[1]),
                 (current_coord[0] + 1, current_coord[1]),
@@ -88,7 +91,7 @@ if __name__ == "__main__":
                 region.min_x = min(min(lst) for lst in region.rows.values())
                 region.max_x = max(max(lst) for lst in region.rows.values())
 
-                region.edges = find_edges(region)
+        print_grid(region.get_subgrid_of_region(grid))
 
         return region
 
