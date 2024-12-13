@@ -49,7 +49,7 @@ if __name__ == "__main__":
     shape = grid.shape
 
     def find_edges(region):
-        pass
+        return 0
 
 
     def find_region(coord, char):
@@ -88,6 +88,8 @@ if __name__ == "__main__":
                 region.min_x = min(min(lst) for lst in region.rows.values())
                 region.max_x = max(max(lst) for lst in region.rows.values())
 
+                region.edges = find_edges(region)
+
         return region
 
 
@@ -109,4 +111,4 @@ if __name__ == "__main__":
 
     logger.info("Advent of Code 2024 | Day 12")
     logger.info(f"Answer part 1: {part_1}")
-    logger.info(f"Answer part 1: {part_2}")
+    logger.info(f"Answer part 2: {part_2}")
