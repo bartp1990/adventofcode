@@ -9,27 +9,58 @@ from enum import Enum, auto
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
+
 @dataclass
 class Region:
-    letter:str
+    letter: str
     rows: dict = field(default_factory=dict)
-    area:int = 0
-    perimeter:int = 0
-    min_x:int = 999999999999
-    max_x:int = 0
-    min_y:int = 999999999999
-    max_y:int = 0
-    outside_edges_touched:int = 0
-    edges:int = 0
+    area: int = 0
+    perimeter: int = 0
+    min_x: int = 999999999999
+    max_x: int = 0
+    min_y: int = 999999999999
+    max_y: int = 0
+    outside_edges_touched: int = 0
+    edges: int = 0
 
     def get_subgrid_of_region(self, grid):
-        return grid[self.min_y:self.max_y + 1, self.min_x:self.max_x + 1]
+        return grid[self.min_y : self.max_y + 1, self.min_x : self.max_x + 1]
+
+    def find_edges(self):
+        n_edges = 4
+        for i in range(0, len(self.rows) - 1):
+            if not i + 1 in self.rows:
+                break
+
+            min_x_current = min(self.rows[i])
+            max_x_current = max(self.rows[i])
+            min_x_next = min(self.rows[i + 1])
+            max_x_next = max(self.rows[i + 1])
+
+            len_row_next = max_x_next - min_x_next
+            len_row_current = max_x_current - min_x_current
+
+            if (
+                len_row_next == len_row_current
+                and min_x_next == min_x_current
+                and max_x_next == max_x_current
+            ):
+                continue
+            elif min_x_next != min_x_current and max_x_next != max_x_current and len_row_next != len_row_current:
+                n_edges += 4
+            elif (min_x_next == min_x_current or max_x_next == max_x_current) and len_row_next != len_row_current:
+                n_edges += 2
+
+        return n_edges
+
+    # subgrid = self.get_subgrid_of_region(grid)
 
 
 def print_grid(grid: np.ndarray):
     for row in grid:
         print("".join(row))
     print("\n")
+
 
 if __name__ == "__main__":
     with open("input.txt") as f:
@@ -45,9 +76,6 @@ if __name__ == "__main__":
 
     grid = np.array(tmp_grid)
     shape = grid.shape
-
-    def find_edges(region):
-       pass
 
     def find_region(coord, char):
         region = Region(letter=char)
@@ -91,10 +119,9 @@ if __name__ == "__main__":
                 region.min_x = min(min(lst) for lst in region.rows.values())
                 region.max_x = max(max(lst) for lst in region.rows.values())
 
-        print_grid(region.get_subgrid_of_region(grid))
+        region.edges = region.find_edges()
 
         return region
-
 
     visited = set()
     regions = []
@@ -109,6 +136,7 @@ if __name__ == "__main__":
     part_1 = 0
     part_2 = 0
     for region in regions:
+        logger.info(region)
         part_1 += region.area * region.perimeter
         part_2 += region.area * region.edges
 
