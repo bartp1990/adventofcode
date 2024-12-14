@@ -1,15 +1,22 @@
 import logging
 import re
 from dataclasses import dataclass, field
+from idlelib.debugger_r import gui_adap_oid
+
 import numpy as np
 from typing import List
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
-SIZE_X = 11
-SIZE_Y = 7
+SIZE_X = 101
+SIZE_Y = 103
 
+def print_grid(grid: np.ndarray):
+    for row in grid:
+        row = np.array(["." if c == 0 else c for c in row])
+        print("".join(list(map(str, row))))
+    print("\n")
 
 @dataclass
 class Robot:
@@ -41,18 +48,18 @@ class Grid:
 
     def print(self, t):
         printed_grid = self.grid_at_time(t=t)
-        for row in printed_grid:
-            row = np.array(["." if c == 0 else c for c in row])
-            print("".join(list(map(str, row))))
-        print("\n")
+
 
     def security_score(self, t):
         g = self.grid_at_time(t=t)
+        quad_width = g.shape[1] // 2
+        quad_height = g.shape[0] // 2
+        print(g.shape)
         quarters = (
-            g[0 : g.shape[0] // 2, 0 : g.shape[1] // 2],
-            g[0 : g.shape[0] // 2, (g.shape[1] // 2 + 1):],
-            g[(g.shape[1] // 2) -1:, 0 : g.shape[1] // 2],
-            g[(g.shape[1] // 2) -1:, (g.shape[1] // 2) +1:],
+            g[0 : quad_height, 0 : quad_width: ],
+            g[0 : quad_height, quad_width +1: ],
+            g[quad_height+1:, 0 : quad_width],
+            g[quad_height+1:, quad_width+1:],
         )
 
         sums = [np.sum(q) for q in quarters]
@@ -72,8 +79,9 @@ if __name__ == "__main__":  # Default empty array, will be overwritten
         x, y, vx, vy = list(map(int, [i for i in match.groups()]))
         grid.robots.append(Robot(np.array([y, x]), np.array([vy, vx])))
 
-    part_1 = grid.security_score(t=100)
     grid.print(t=100)
+    part_1 = grid.security_score(t=100)
+
     part_2 = None
 
     logger.info("Advent of Code 2024 | Day 1")
