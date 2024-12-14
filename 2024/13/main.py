@@ -32,7 +32,7 @@ if __name__ == "__main__":
         print(f"Buttons: {buttons}")
         print(f"Prize: {prize}")
 
-        a, b = sp.symbols('a b', integer=True)
+        a, b = sp.symbols("a b", integer=True)
 
         eq1 = sp.Eq(a * buttons["A"][0] + b * buttons["B"][0], prize[0] + 10000000000000)
         eq2 = sp.Eq(a * buttons["A"][1] + b * buttons["B"][1], prize[1] + 10000000000000)

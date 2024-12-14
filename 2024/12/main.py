@@ -46,15 +46,22 @@ class Region:
                 and max_x_next == max_x_current
             ):
                 continue
-            elif min_x_next != min_x_current and max_x_next != max_x_current and len_row_next != len_row_current:
+            elif (
+                min_x_next != min_x_current
+                and max_x_next != max_x_current
+                and len_row_next != len_row_current
+            ):
                 n_edges += 4
-            elif (min_x_next == min_x_current or max_x_next == max_x_current) and len_row_next != len_row_current:
+            elif (
+                min_x_next == min_x_current or max_x_next == max_x_current
+            ) and len_row_next != len_row_current:
                 n_edges += 2
 
         subgrid = self.get_subgrid_of_region(grid)
         print_grid(subgrid)
 
         return n_edges
+
 
 def find_regions_in_grid(grid):
     shape = grid.shape
