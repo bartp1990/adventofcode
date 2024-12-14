@@ -1,8 +1,6 @@
-"""Solution for https://adventofcode.com/2024/day/1."""
-
 import logging
 import re
-import math
+import sympy as sp
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
@@ -22,40 +20,40 @@ if __name__ == "__main__":
     prize_pattern = r"X=(\d+), Y=(\d+)"
     buttons = dict()
     lowest_cost = 0
+
     for case in cases:
         tmp = [(int(x), int(y)) for x, y in re.findall(button_pattern, case)]
         buttons["A"] = tmp[0]
         buttons["B"] = tmp[1]
+
         prize_match = re.search(prize_pattern, case)
         prize = int(prize_match.group(1)), int(prize_match.group(2))
 
-        max_presses = dict()
-        for name, (x, y) in buttons.items():
-            max_presses_x = prize[0] // x
-            max_presses_y = prize[1] // y
-            max_presses[name] = min(max_presses_x, max_presses_y)
+        print(f"Buttons: {buttons}")
+        print(f"Prize: {prize}")
 
-        min_cost = math.inf
-        for a in range(0, max_presses["A"] + 1):
-            for b in range(0, max_presses["B"] + 1):
-                X = buttons["A"][0] * a + buttons["B"][0] * b
-                Y = buttons["A"][1] * a + buttons["B"][1] * b
+        a, b = sp.symbols('a b', integer=True)
 
-                if not X == prize[0] or not Y == prize[1]:
-                    continue
+        eq1 = sp.Eq(a * buttons["A"][0] + b * buttons["B"][0], prize[0] + 10000000000000)
+        eq2 = sp.Eq(a * buttons["A"][1] + b * buttons["B"][1], prize[1] + 10000000000000)
 
-                cost = cost_per_button["A"] * a + cost_per_button["B"] * b
-                if cost < min_cost:
-                    min_cost = cost
+        solution = sp.solve((eq1, eq2), (a, b))
 
-        # print(min_cost)
-        lowest_cost += min_cost if min_cost != math.inf else 0
+        print(f"Solution: {solution}")
 
-    print(lowest_cost)
+        if solution:
+            a_val = solution[a]
+            b_val = solution[b]
 
-    part1 = None
-    part2 = None
+            cost = cost_per_button["A"] * a_val + cost_per_button["B"] * b_val
+            print(f"Cost for this case: {cost}")
+            lowest_cost += cost
+            # Calculate the cost
+
+    print(f"Total lowest cost: {lowest_cost}")
+
+    part2 = lowest_cost
 
     logger.info("Advent of Code 2024 | Day 1")
-    logger.info(f"Answer part 1: {part1}")
+    # logger.info(f"Answer part 1: {part1}")
     logger.info(f"Answer part 2: {part2}")
