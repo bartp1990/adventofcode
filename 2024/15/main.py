@@ -1,32 +1,66 @@
 import logging
-
 import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
 
-
-def print_grid(grid: np.ndarray):
-    for row in grid:
-        row = np.array(["." if c == 0 else c for c in row])
-        print("".join(list(map(str, row))))
-    print("\n")
-
+instr_to_dir = {
+    "^": (0, -1),
+    "v": (0, 1),
+    "<": (-1, 0),
+    ">": (1, 0),
+}
 
 class Grid:
     def __init__(self, lines):
-        self.grid = np.full((len(lines), len(lines[0])), ".")
+        self.grid = np.full((len(lines), len(lines[0])), ".", dtype="<U1")
+        self.walls = set()
+        self.boxes = set()
+
         for y, line in enumerate(lines):
-            for x, char in enumerate(list(line)):
-                self.grid[x, y] = char
+            for x, char in enumerate(line):
+                self.grid[y, x] = char
                 if char == "@":
-                    self.robot_pos = (x, y)
+                    self.robot_pos = np.array([x, y])
+                elif char == "#":
+                    self.boxes.add((x, y))
+                    self.walls.add((x, y))
+
+    def move(self, instruction):
+        direction = instr_to_dir[instruction]
+
+        def move_if_possible(x, y, direction) -> bool:
+            swap = False
+            next_pos = (x + direction[0], y + direction[1])
+
+            if next_pos[0] < 0 or next_pos[0] >= self.grid.shape[1] or next_pos[1] < 0 or next_pos[1] >= self.grid.shape[0]:
+                return False
+
+            next_char = self.grid[next_pos[1], next_pos[0]]
+            if next_char == "#":
+                return False
+            elif next_char == "O":
+                if move_if_possible(*next_pos, direction):
+                    swap = True
+            elif next_char == ".":
+                swap = True
+
+            if swap:
+                self.grid[y, x], self.grid[next_pos[1], next_pos[0]] = (
+                    self.grid[next_pos[1], next_pos[0]],
+                    self.grid[y, x],
+                )
+                self.robot_pos = np.array([next_pos[0], next_pos[1]])
+                return True
+            return False
+
+        move_if_possible(self.robot_pos[0], self.robot_pos[1], direction)
 
     def print(self):
         result = ""
-        for y in range(0, self.grid.shape[1]):
-            for x in range(0, self.grid.shape[0]):
-                result += self.grid[x, y]
+        for y in range(self.grid.shape[0]):
+            for x in range(self.grid.shape[1]):
+                result += self.grid[y, x]
             result += "\n"
         result += "\n"
         print(result)
@@ -38,8 +72,15 @@ if __name__ == "__main__":
 
     grid, instructions = file.split("\n\n")
     grid = grid.split("\n")
-    instructions = list(instructions)
+    instructions = [instr for instr in list(instructions) if instr != "\n"]
     grid = Grid(grid)
+
+    grid.print()
+
+    for instruction in instructions:
+        grid.move(instruction)
+
+    grid.print()
 
     part_1 = None
     part_2 = None
