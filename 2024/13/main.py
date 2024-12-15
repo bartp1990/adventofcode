@@ -1,5 +1,6 @@
 import logging
 import re
+
 import sympy as sp
 
 logging.basicConfig(level=logging.INFO)

@@ -1,9 +1,9 @@
 import logging
 import re
 from dataclasses import dataclass, field
+from typing import List
 
 import numpy as np
-from typing import List
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
@@ -103,8 +103,8 @@ if __name__ == "__main__":
 
     part_2 = highest_density_t
 
-    import numpy as np
     import matplotlib.pyplot as plt
+    import numpy as np
 
     def convert_to_bw_image(arr):
         bw_image = np.where(arr >= 1, 255, 0).astype(np.uint8)

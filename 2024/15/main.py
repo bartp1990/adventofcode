@@ -1,9 +1,6 @@
 import logging
-import re
-from dataclasses import dataclass, field
 
 import numpy as np
-from typing import List
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
@@ -16,11 +13,33 @@ def print_grid(grid: np.ndarray):
     print("\n")
 
 
+class Grid:
+    def __init__(self, lines):
+        self.grid = np.full((len(lines), len(lines[0])), ".")
+        for y, line in enumerate(lines):
+            for x, char in enumerate(list(line)):
+                self.grid[x, y] = char
+                if char == "@":
+                    self.robot_pos = (x, y)
+
+    def print(self):
+        result = ""
+        for y in range(0, self.grid.shape[1]):
+            for x in range(0, self.grid.shape[0]):
+                result += self.grid[x, y]
+            result += "\n"
+        result += "\n"
+        print(result)
 
 
 if __name__ == "__main__":
     with open("input.txt") as f:
-        lines = f.readlines()
+        file = f.read()
+
+    grid, instructions = file.split("\n\n")
+    grid = grid.split("\n")
+    instructions = list(instructions)
+    grid = Grid(grid)
 
     part_1 = None
     part_2 = None

@@ -1,12 +1,11 @@
 """Solution for https://adventofcode.com/2024/day/11."""
 
 import logging
+import math
+from functools import cache
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
-
-import math
-from functools import cache
 
 NUM_ITERATIONS = 75
 

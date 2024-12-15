@@ -1,10 +1,9 @@
 """Solution for https://adventofcode.com/2024/day/12."""
 
 import logging
-import numpy as np
-
 from dataclasses import dataclass, field
-from enum import Enum, auto
+
+import numpy as np
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger()
@@ -29,7 +28,7 @@ class Region:
     def find_edges(self):
         n_edges = 4
         for i in range(0, len(self.rows) - 1):
-            if not i + 1 in self.rows:
+            if i + 1 not in self.rows:
                 break
 
             min_x_current = min(self.rows[i])
