@@ -75,14 +75,16 @@ if __name__ == "__main__":
     instructions = [instr for instr in list(instructions) if instr != "\n"]
     grid = Grid(grid)
 
-    grid.print()
-
     for instruction in instructions:
         grid.move(instruction)
 
-    grid.print()
+    sum = 0
+    for y in range(0, grid.grid.shape[1]):
+        for x in range(0, grid.grid.shape[0]):
+            if grid.grid[y, x] == "O":
+                sum += 100 * y + x
 
-    part_1 = None
+    part_1 = sum
     part_2 = None
 
     logger.info("Advent of Code 2024 | Day 15")
